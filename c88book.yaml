@@ -1,10 +1,10 @@
 bookname: c88book
-booktitle: "c88book-title"
-subtitle: "c88book-subtitle"
+booktitle: "Harvey OS 読本"
+subtitle: "Harvey OS で作る Plan 9 環境"
 language: ja
-aut: \@n\_kane
+aut: "@n_kane"
 prt: Glenda9
-prt_url: http://github.com/enukane/
+prt_url: http://github.com/enukane/c88-harvey-os-book
 date: 2015-08-16
 rights: (C) enukane
 description: Summer 2015, C88 book
