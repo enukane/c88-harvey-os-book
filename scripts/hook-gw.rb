@@ -24,6 +24,7 @@ def do_job
   end
 
   # do make
+  system("make cleean")
   result = system("make")
   unless result
     raise "failed to make"
@@ -35,6 +36,8 @@ def do_job
   unless result
     raise "failed to copy #{ORIG_FILE} to #{STORE_PREFIX}/#{filename}"
   end
+
+  system("make clean")
 end
 
 post '/' do
