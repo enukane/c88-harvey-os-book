@@ -24,7 +24,7 @@ def do_job
   end
 
   # do make
-  system("make cleean")
+  system("make clean")
   result = system("make")
   unless result
     raise "failed to make"
