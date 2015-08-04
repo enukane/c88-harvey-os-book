@@ -1,2 +1,5 @@
 *.pdf
 c88book-pdf
+.DS_Store
+*_color.png
+*_color.jpg
