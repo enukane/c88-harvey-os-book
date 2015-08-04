@@ -51,7 +51,7 @@ post '/' do
 
     print "OK: done\n\n"
 
-    "ok. #{here}"
+    "ok."
   rescue => e
     print "NG: error detected (#{e})\n\n"
 
