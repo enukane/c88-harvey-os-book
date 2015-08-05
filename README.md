@@ -37,3 +37,10 @@ C88, 2015夏コミックマーケットで頒布した「Harvey OS 読本」の�
 ReVIEWで必要となる画像データやsty以外の内容物について
 
 (TBD)
+
+## TeX 備忘録
+毎季忘れるのでメモ
+
+- http://osksn2.hep.sci.osaka-u.ac.jp/~taku/osx/install_ptex.html
+- http://osksn2.hep.sci.osaka-u.ac.jp/~taku/osx/embed_hiragino.html
+- http://tex.stackexchange.com/questions/88315/font-problem-errors-returned
