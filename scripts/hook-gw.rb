@@ -4,7 +4,7 @@ require "json"
 
 REP_FULL_NAME="enukane/c88-harvey-os-book"
 ORIG_FILE="c88book.pdf"
-STORE_PREFIX="~/public_html/c88-harvey-os-book/"
+STORE_PREFIX="~/public_html/c88-harvey-os-book"
 FILE_PREFIX="c88-"
 
 def generate_filename
@@ -24,11 +24,20 @@ def do_job
   end
 
   # do make
+  system("make clean")
   result = system("make")
   unless result
     raise "failed to make"
   end
+
   # copy output into public_html with name 
+  filename = generate_filename()
+  result = system("cp #{ORIG_FILE} #{STORE_PREFIX}/#{filename}")
+  unless result
+    raise "failed to copy #{ORIG_FILE} to #{STORE_PREFIX}/#{filename}"
+  end
+
+  system("make clean")
 end
 
 post '/' do
@@ -45,7 +54,7 @@ post '/' do
 
     print "OK: done\n\n"
 
-    "ok. #{here}"
+    "ok."
   rescue => e
     print "NG: error detected (#{e})\n\n"
 
