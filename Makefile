@@ -4,7 +4,11 @@ BUILDDIR = $(NAME)-pdf
 
 CONFIG = $(NAME).yaml
 
-DEPFILES = 00abstract.re
+DEPFILES = 00-introduction.re \
+	   01-harvey-os.re \
+	   02-how-to-harvey.re \
+	   03-dev-in-harvey.re \
+	   99-conclusion.re
 
 # command
 PDFMAKE := review-pdfmaker
