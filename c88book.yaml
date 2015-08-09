@@ -15,6 +15,7 @@ titlepage: false
 colophon: true
 pubhistory: 2015年 8月 16日 第一版発行
 
+toc: true
 toclevel: 3
 secnolevel: 3
 stylesheet: test.css
