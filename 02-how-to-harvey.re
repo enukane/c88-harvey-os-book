@@ -1,53 +1,126 @@
 = Harvey OS 環境構築
-#@# NOT YET
 
-この章では, Harvey OS で遊ぶための環境作りを解説します. また実際にHarvey OSを起動できるところまでを確認します.
+この章では, Harvey OS で遊ぶための環境作りを解説します. 実際にHarvey OSを起動できるところまでを確認します.
+主に筆者環境であるMac OS X / Homebrew 環境について重点的に述べています.
+基本的には Harvey OS 自体の README.md を見ればなんとかなります. gcc のソースビルド等したい場合は本章をご参照ください.
 
-== 想定環境
+== 必要なパッケージの導入
 
-#@# 想定環境の提示
-#@# 一番めんどくさい環境として
-#@# clangには対応してないので、クロスのgccがひつよう
+OS X向けには bison, qemu, go を事前に入れておく必要があります.
+なお Xcode の Command Line Tools を導入済みの場合, bison は Homebrew でインストールせずとも大丈夫です.
 
-== クロスコンパイル環境のインストール
+//cmd{
+host% brew install bison
+host% brew instlal qemu
+host% brew go
+//}
 
-Harvey OS のビルドには "x86_64-elf-gcc"が必要です. 公式のドキュメントにもあるとおりそれぞれLinux, Mac OS X では以下の様にこのクロスコンパイラの準備が可能です.
-#@# x86_64-elf-gccが必要
-#@# binutils-2.25とgcc-4.9.3を用意する
+== OSX 向けクロスコンパイル環境の構築 (パッケージシステム利用)
 
-#@# ~/crossに用意
+Harvey OS のビルドには @<b>{x86_64-elf-gcc} が必要です. Homebrew 標準のリポジトリには導入されていないため, 下記の通り sevki/gcc_cross_comilers を tap しインストールします.
 
-=== binutilsのインストール
+//cmd{
+host% brew tap sevki/gcc_cross_compilers
+host% brew install sevki/gcc_cross_compilers/x86_64-elf-gcc
+//}
 
-=== gcc-4.9.3
+
+== OSX 向けクロスコンパイル環境の構築 (ソースビルド)
+
+上記 tap を用いない場合, ソースから binutils と gcc をビルドする必要があります. 本稿ではそれぞれ以下のバージョンによる環境を構築します. 
+
+ * binutils-2.25
+ * gcc-4.93
+
+クロスコンパイル環境はここでは @<i>{$HOME/cross} 以下に構築します. 環境変数として以下を設定しておきます.
+
+//cmd{
+host% export PREFIX=$HOME/cross
+host% export TARGET=x86_64-elf
+host% export PATH=$HOME/cross/bin:$PATH
+host% export TOOLPREFIX=x86_64-elf-
+//}
+
+=== binutils の準備
+
+binutils-2.25.tar.gz 自体は本家 (http://ftp.gnu.org/gnu/binutils/) から拾ってきます.
+
+//cmd{
+
+host% tar zxvf binutils-2.25.tar.gz
+
+host% mkdir build-binutils
+host% cd build-binutils
+
+host% ../binutils-2.25/configure --target=$TARGET --prefix="$PREFIX" \
+--with-sysroot --disable-nls --disable-werror
+
+host% make
+
+host% make install
+//}
+
+=== gcc の準備
+
+gcc-4.9.3.tar.gz についてはMirrorのどこかから tar.gz ファイルを拾ってきます.
+今回は http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-4.9.3/ から取得しました.
+
+//cmd{
+
+host% tar zxvf gcc-4.9.3.tar.gz
+
+host% mkdir build-gcc
+host% cd build-gcc
+
+host% ../gcc-4.9.3/configure --target=$TARGET --prefix="$PREFIX" --disable-nls \
+--enable-languages=c,c++ --without-headers
+
+host% make all-gcc
+host% make all-target-libgcc
+host% make install-gcc
+host% make install-target-libgcc
+
+host% ls ~/cross/bin/x86_64-elf-gcc
+//}
 
 == Harvey OS
 === インストール
 
+Harvey OS は github 上と gerrithub 上のそれぞれにリポジトリを持っています. 基本的には gerrithub 側を推奨しているようです.
+
+//emlist{
+https://github.com/Harvey-OS/harvey.git
+https://review.gerrithub.io/Harvey-OS/harve
+//}
+
 === ビルド
+
+ビルド時にはいくつか環境変数をセットしておく必要があります. 特に OS X でクロスコンパイラ利用時は TOOLPREFIX と ARCH の指定が必要です.
+
+//cmd{
+環境変数の設定(必須)
+host% export HARVEY=$(pwd)
+host% export TOOLPREFIX=x86_64-elf-
+host% export ARCH=amd64
+//}
 
 ビルドにはソースディレクトリ直下にある BUILD スクリプトを用います. MacBookAir (Mid2012, Core i5 1.8GHz)において, cleanall && all のクリーンビルドで3分程度かかりました.
 
 //cmd{
-1. 環境変数の設定(必須)
-% export TOOLPREFIX=x86_64-elf-
-% export HARVEY=$(pwd)
-% export ARCH=amd64
-
-2.a 全体をビルドする場合
-% ./BUILD all
+全体をビルドする場合
+host% ./BUILD all
 または
-% ./BUILD cleanall && ./BUILD all
+host% ./BUILD cleanall && ./BUILD all
 
-2.b カーネルのみビルドする場合
-% ./BUILD kernel
+カーネルのみビルドする場合
+host% ./BUILD kernel
 または
-% ./BUILD cleankernel && ./BUILD kernel
+host% ./BUILD cleankernel && ./BUILD kernel
 
-2.c ユーザランドのみビルドする場合
-% ./BUILD cmd
+ユーザランドのみビルドする場合
+host% ./BUILD cmd
 または
-% ./BUILD cleancmd && ./BUILD cmd
+host% ./BUILD cleancmd && ./BUILD cmd
 //}
 
 その他細かいビルド対象については BUILD スクリプトのヘルプ(引数無し実行)に記載されています. もう少し細かいビルドの流れについては第三章「Harvey OSのビルド概要」にて取り扱います.
@@ -57,15 +130,16 @@ Harvey OS のビルドには "x86_64-elf-gcc"が必要です. 公式のドキュ
 
 ビルドした Harvey OS は以下のコマンドにて起動可能です.
 //cmd{
-% (cd sys/src/9/k10 && sh ../../../../util/QRUN)
+host% (cd sys/src/9/k10 && sh ../../../../util/QRUN)
 //}
-終了するには、上記コマンドを実行したコンソール内で Ctrl + C (SIGINT) を入力します.
+終了するには、上記コマンドを実行したコンソールにて Ctrl + C (SIGINT) を入力します.
 
 
-QRUNの中身は@<list>{QRUN}にあるとおり, qemu自体の実行と各種引数(パラメータ)の設定になっています. デフォルトのメモリ量として 2GB (2048) を指定していますが本稿では512MB (-m 512) に変更しています.
+QRUNの中身は@<list>{QRUN}にあるとおり, qemu自体の実行と各種引数(パラメータ)の設定になっています.
+なおデフォルトのメモリ量として 2GB (2048) が指定されていますが, 本稿では512MB (-m 512) に変更しています.
 
 //list[QRUN][QRUNの内容(抜粋)]{
-sudo qemu-system-x86_64 -s -cpu Opteron_G1 -smp 1 -m 2048  \
+sudo qemu-system-x86_64 -s -cpu Opteron_G1 -smp 1 -m 512  \
 -serial stdio \
 --machine pc \
 -net nic,model=rtl8139 \
@@ -80,7 +154,7 @@ sudo qemu-system-x86_64 -s -cpu Opteron_G1 -smp 1 -m 2048  \
 一方、元の起動コマンドを実行した端末でも下記に示されるように,起動時の各種メッセージが表示されコンソールを触ることができます.Harvey OSでは主にこちらでの操作がメインになるでしょう.というのも, この段階では Harvey OS 自体に終了用のコマンドを組み込んでおらずCtrl+Cに頼り切りになること, またrio等のウィンドウシステムを上げていない限りはこちらで操作の方が利便性が高いためです.
 
 //cmd{
-% (cd sys/src/9/k10 && sh ../../../../util/QRUN)
+host% (cd sys/src/9/k10 && sh ../../../../util/QRUN)
 
 Harvey
 mmuinit: vmstart 0xfffffffff0000000 vmunused 0xfffffffff037c000 vmunmapped 0xfffffffff040

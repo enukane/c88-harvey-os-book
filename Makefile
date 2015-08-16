@@ -7,7 +7,8 @@ CONFIG = $(NAME).yaml
 DEPFILES = 00-introduction.re \
 	   01-harvey-os.re \
 	   02-how-to-harvey.re \
-	   03-dev-in-harvey.re \
+	   03-build-in-harvey.re \
+	   04-build-up-harvey.re \
 	   99-conclusion.re
 
 # command
